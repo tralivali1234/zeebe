@@ -19,15 +19,14 @@ import io.grpc.stub.StreamObserver;
 import io.zeebe.client.api.ZeebeFuture;
 import io.zeebe.client.api.command.CreateWorkflowInstanceCommandStep1.CreateWorkflowInstanceWithResultCommandStep1;
 import io.zeebe.client.api.command.FinalCommandStep;
-import io.zeebe.client.api.response.WorkflowInstanceResult;
+import io.zeebe.client.api.response.CreateWorkflowInstanceWithResultResponse;
 import io.zeebe.client.impl.RetriableClientFutureImpl;
 import io.zeebe.client.impl.ZeebeObjectMapper;
-import io.zeebe.client.impl.response.CreateWorkflowInstanceWithResultResponseImpl;
+import io.zeebe.client.impl.response.CreateCreateWorkflowInstanceWithWithResultResponseResponseImpl;
 import io.zeebe.gateway.protocol.GatewayGrpc.GatewayStub;
 import io.zeebe.gateway.protocol.GatewayOuterClass.CreateWorkflowInstanceRequest;
 import io.zeebe.gateway.protocol.GatewayOuterClass.CreateWorkflowInstanceWithResultRequest;
 import io.zeebe.gateway.protocol.GatewayOuterClass.CreateWorkflowInstanceWithResultRequest.Builder;
-import io.zeebe.gateway.protocol.GatewayOuterClass.CreateWorkflowInstanceWithResultResponse;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
@@ -60,14 +59,14 @@ public final class CreateWorkflowInstanceWithResultCommandImpl
   }
 
   @Override
-  public FinalCommandStep<WorkflowInstanceResult> requestTimeout(final Duration requestTimeout) {
+  public FinalCommandStep<CreateWorkflowInstanceWithResultResponse> requestTimeout(final Duration requestTimeout) {
     this.requestTimeout = requestTimeout;
     this.builder.setRequestTimeout(requestTimeout.toMillis());
     return this;
   }
 
   @Override
-  public ZeebeFuture<WorkflowInstanceResult> send() {
+  public ZeebeFuture<CreateWorkflowInstanceWithResultResponse> send() {
     final CreateWorkflowInstanceWithResultRequest request =
         builder
             .setRequest(createWorkflowInstanceRequestBuilder)
@@ -75,11 +74,11 @@ public final class CreateWorkflowInstanceWithResultCommandImpl
             .build();
 
     final RetriableClientFutureImpl<
-            WorkflowInstanceResult, CreateWorkflowInstanceWithResultResponse>
+      CreateWorkflowInstanceWithResultResponse, io.zeebe.gateway.protocol.GatewayOuterClass.CreateWorkflowInstanceWithResultResponse>
         future =
             new RetriableClientFutureImpl<>(
                 response ->
-                    new CreateWorkflowInstanceWithResultResponseImpl(objectMapper, response),
+                    new CreateCreateWorkflowInstanceWithWithResultResponseResponseImpl(objectMapper, response),
                 retryPredicate,
                 streamObserver -> send(request, streamObserver));
 
@@ -89,7 +88,7 @@ public final class CreateWorkflowInstanceWithResultCommandImpl
 
   private void send(
       final CreateWorkflowInstanceWithResultRequest request,
-      final StreamObserver<CreateWorkflowInstanceWithResultResponse> future) {
+      final StreamObserver<io.zeebe.gateway.protocol.GatewayOuterClass.CreateWorkflowInstanceWithResultResponse> future) {
     asyncStub
         .withDeadlineAfter(requestTimeout.plus(DEADLINE_OFFSET).toMillis(), TimeUnit.MILLISECONDS)
         .createWorkflowInstanceWithResult(request, future);

@@ -8,7 +8,7 @@
 package io.zeebe.test;
 
 import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.api.response.WorkflowInstanceEvent;
+import io.zeebe.client.api.response.CreateWorkflowInstanceResponse;
 import io.zeebe.protocol.record.intent.DeploymentIntent;
 import io.zeebe.test.util.record.RecordingExporter;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ public class WorkflowTest {
 
   @Test
   public void shouldCompleteWorkflowInstance() {
-    final WorkflowInstanceEvent workflowInstance =
+    final CreateWorkflowInstanceResponse workflowInstance =
         client.newCreateInstanceCommand().bpmnProcessId("process").latestVersion().send().join();
 
     client
@@ -52,7 +52,7 @@ public class WorkflowTest {
 
   @Test
   public void shouldCompleteWorkflowInstanceWithVariables() {
-    final WorkflowInstanceEvent workflowInstance =
+    final CreateWorkflowInstanceResponse workflowInstance =
         client.newCreateInstanceCommand().bpmnProcessId("process").latestVersion().send().join();
 
     final Map<String, Object> variables = new HashMap<>();

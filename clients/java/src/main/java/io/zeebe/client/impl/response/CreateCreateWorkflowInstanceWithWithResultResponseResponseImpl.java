@@ -15,12 +15,13 @@
  */
 package io.zeebe.client.impl.response;
 
-import io.zeebe.client.api.response.WorkflowInstanceResult;
+import io.zeebe.client.api.response.CreateWorkflowInstanceWithResultResponse;
 import io.zeebe.client.impl.ZeebeObjectMapper;
 import io.zeebe.gateway.protocol.GatewayOuterClass;
 import java.util.Map;
 
-public final class CreateWorkflowInstanceWithResultResponseImpl implements WorkflowInstanceResult {
+public final class CreateCreateWorkflowInstanceWithWithResultResponseResponseImpl implements
+  CreateWorkflowInstanceWithResultResponse {
 
   private final ZeebeObjectMapper objectMapper;
   private final long workflowKey;
@@ -29,7 +30,7 @@ public final class CreateWorkflowInstanceWithResultResponseImpl implements Workf
   private final long workflowInstanceKey;
   private final String variables;
 
-  public CreateWorkflowInstanceWithResultResponseImpl(
+  public CreateCreateWorkflowInstanceWithWithResultResponseResponseImpl(
       final ZeebeObjectMapper objectMapper,
       final GatewayOuterClass.CreateWorkflowInstanceWithResultResponse response) {
     this.objectMapper = objectMapper;

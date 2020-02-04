@@ -20,7 +20,7 @@ Add `zeebe-test` as test dependency to your project.
 </dependencyManagement>
 
 <dependencies>
-  
+
   <dependency>
     <groupId>io.zeebe</groupId>
     <artifactId>zeebe-client-java</artifactId>
@@ -31,7 +31,7 @@ Add `zeebe-test` as test dependency to your project.
     <artifactId>zeebe-test</artifactId>
     <scope>test</scope>
   </dependency>
-  
+
 </dependencies>
 ```
 
@@ -39,7 +39,7 @@ Use the `ZeebeTestRule` in your test case to start an embedded broker and client
 
 ```java
 import io.zeebe.client.ZeebeClient;
-import io.zeebe.client.api.response.WorkflowInstanceEvent;
+import io.zeebe.client.api.response.CreateWorkflowInstanceResponse;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,7 +63,7 @@ public class WorkflowTest {
 
   @Test
   public void shouldCompleteWorkflowInstance() {
-    final WorkflowInstanceEvent workflowInstance =
+    final CreateWorkflowInstanceResponse workflowInstance =
         client
             .workflowClient()
             .newCreateInstanceCommand()

@@ -15,17 +15,12 @@
  */
 package io.zeebe.client.api.response;
 
-public interface WorkflowInstanceEvent {
+import java.util.List;
 
-  /** Key of the workflow which this instance was created for */
-  long getWorkflowKey();
+public interface DeployWorkflowResponse {
+  /** @return the unique key of the deployment */
+  long getKey();
 
-  /** BPMN process id of the workflow which this instance was created for */
-  String getBpmnProcessId();
-
-  /** Version of the workflow which this instance was created for */
-  int getVersion();
-
-  /** Unique key of the created workflow instance on the partition */
-  long getWorkflowInstanceKey();
+  /** @return the workflows which are deployed */
+  List<Workflow> getWorkflows();
 }

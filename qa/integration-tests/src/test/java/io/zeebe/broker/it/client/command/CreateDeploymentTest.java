@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import io.zeebe.broker.it.util.GrpcClientRule;
 import io.zeebe.broker.test.EmbeddedBrokerRule;
 import io.zeebe.client.api.command.ClientException;
-import io.zeebe.client.api.response.DeploymentEvent;
+import io.zeebe.client.api.response.DeployWorkflowResponse;
 import io.zeebe.client.api.response.Workflow;
 import io.zeebe.model.bpmn.Bpmn;
 import io.zeebe.model.bpmn.BpmnModelInstance;
@@ -47,7 +47,7 @@ public final class CreateDeploymentTest {
             .done();
 
     // when
-    final DeploymentEvent result =
+    final DeployWorkflowResponse result =
         CLIENT_RULE
             .getClient()
             .newDeployCommand()
@@ -89,7 +89,7 @@ public final class CreateDeploymentTest {
   @Test
   public void shouldDeployYamlWorkflow() {
     // when
-    final DeploymentEvent result =
+    final DeployWorkflowResponse result =
         CLIENT_RULE
             .getClient()
             .newDeployCommand()

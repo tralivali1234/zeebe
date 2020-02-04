@@ -19,7 +19,7 @@ import static io.zeebe.client.util.JsonUtil.fromJsonAsMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 
-import io.zeebe.client.api.response.WorkflowInstanceResult;
+import io.zeebe.client.api.response.CreateWorkflowInstanceWithResultResponse;
 import io.zeebe.client.util.ClientTest;
 import io.zeebe.gateway.protocol.GatewayOuterClass.CreateWorkflowInstanceWithResultRequest;
 import java.time.Duration;
@@ -34,7 +34,7 @@ public final class CreateWorkflowInstanceWithResultTest extends ClientTest {
     gatewayService.onCreateWorkflowInstanceWithResultRequest(123, "testProcess", 12, 32, variables);
 
     // when
-    final WorkflowInstanceResult response =
+    final CreateWorkflowInstanceWithResultResponse response =
         client
             .newCreateInstanceCommand()
             .workflowKey(123)
@@ -66,7 +66,7 @@ public final class CreateWorkflowInstanceWithResultTest extends ClientTest {
     gatewayService.onCreateWorkflowInstanceWithResultRequest(123, "testProcess", 12, 32, variables);
 
     // when
-    final WorkflowInstanceResult response =
+    final CreateWorkflowInstanceWithResultResponse response =
         client
             .newCreateInstanceCommand()
             .workflowKey(123)

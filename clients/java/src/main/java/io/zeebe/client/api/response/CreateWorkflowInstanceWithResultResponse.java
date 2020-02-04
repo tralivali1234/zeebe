@@ -17,7 +17,7 @@ package io.zeebe.client.api.response;
 
 import java.util.Map;
 
-public interface WorkflowInstanceResult {
+public interface CreateWorkflowInstanceWithResultResponse {
   /** Key of the workflow which this instance was created for */
   long getWorkflowKey();
 

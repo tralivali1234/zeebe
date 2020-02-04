@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.base.Charsets;
 import io.zeebe.client.api.command.ClientException;
-import io.zeebe.client.api.response.DeploymentEvent;
+import io.zeebe.client.api.response.DeployWorkflowResponse;
 import io.zeebe.client.api.response.Workflow;
 import io.zeebe.client.impl.command.StreamUtil;
 import io.zeebe.client.impl.response.WorkflowImpl;
@@ -58,7 +58,7 @@ public final class DeployWorkflowTest extends ClientTest {
     final Workflow expected = new WorkflowImpl(423, BPMN_1_PROCESS_ID, 12, filename);
 
     // when
-    final DeploymentEvent response =
+    final DeployWorkflowResponse response =
         client.newDeployCommand().addResourceFile(filename).send().join();
 
     // then
@@ -202,7 +202,7 @@ public final class DeployWorkflowTest extends ClientTest {
         deployedWorkflow(YAML_PROCESS_ID, 1, 3, filename3));
 
     // when
-    final DeploymentEvent response =
+    final DeployWorkflowResponse response =
         client
             .newDeployCommand()
             .addResourceFromClasspath(filename1)

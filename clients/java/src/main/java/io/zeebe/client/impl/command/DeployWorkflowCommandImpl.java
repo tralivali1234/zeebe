@@ -25,12 +25,11 @@ import io.zeebe.client.api.command.ClientException;
 import io.zeebe.client.api.command.DeployWorkflowCommandStep1;
 import io.zeebe.client.api.command.DeployWorkflowCommandStep1.DeployWorkflowCommandBuilderStep2;
 import io.zeebe.client.api.command.FinalCommandStep;
-import io.zeebe.client.api.response.DeploymentEvent;
+import io.zeebe.client.api.response.DeployWorkflowResponse;
 import io.zeebe.client.impl.RetriableClientFutureImpl;
-import io.zeebe.client.impl.response.DeploymentEventImpl;
+import io.zeebe.client.impl.response.DeployWorkflowResponseImpl;
 import io.zeebe.gateway.protocol.GatewayGrpc.GatewayStub;
 import io.zeebe.gateway.protocol.GatewayOuterClass.DeployWorkflowRequest;
-import io.zeebe.gateway.protocol.GatewayOuterClass.DeployWorkflowResponse;
 import io.zeebe.gateway.protocol.GatewayOuterClass.WorkflowRequestObject;
 import io.zeebe.model.bpmn.Bpmn;
 import io.zeebe.model.bpmn.BpmnModelInstance;
@@ -147,18 +146,18 @@ public final class DeployWorkflowCommandImpl
   }
 
   @Override
-  public FinalCommandStep<DeploymentEvent> requestTimeout(final Duration requestTimeout) {
+  public FinalCommandStep<DeployWorkflowResponse> requestTimeout(final Duration requestTimeout) {
     this.requestTimeout = requestTimeout;
     return this;
   }
 
   @Override
-  public ZeebeFuture<DeploymentEvent> send() {
+  public ZeebeFuture<DeployWorkflowResponse> send() {
     final DeployWorkflowRequest request = requestBuilder.build();
 
-    final RetriableClientFutureImpl<DeploymentEvent, DeployWorkflowResponse> future =
+    final RetriableClientFutureImpl<DeployWorkflowResponse, io.zeebe.gateway.protocol.GatewayOuterClass.DeployWorkflowResponse> future =
         new RetriableClientFutureImpl<>(
-            DeploymentEventImpl::new,
+            DeployWorkflowResponseImpl::new,
             retryPredicate,
             streamObserver -> send(request, streamObserver));
 

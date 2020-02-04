@@ -9,7 +9,7 @@ package io.zeebe.example.workflow;
 
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.ZeebeClientBuilder;
-import io.zeebe.client.api.response.DeploymentEvent;
+import io.zeebe.client.api.response.DeployWorkflowResponse;
 
 public final class WorkflowDeployer {
 
@@ -21,10 +21,10 @@ public final class WorkflowDeployer {
 
     try (final ZeebeClient client = clientBuilder.build()) {
 
-      final DeploymentEvent deploymentEvent =
+      final DeployWorkflowResponse deployWorkflowResponse =
           client.newDeployCommand().addResourceFromClasspath("demoProcess.bpmn").send().join();
 
-      System.out.println("Deployment created with key: " + deploymentEvent.getKey());
+      System.out.println("Deployment created with key: " + deployWorkflowResponse.getKey());
     }
   }
 }

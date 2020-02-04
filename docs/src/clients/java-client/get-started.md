@@ -162,7 +162,7 @@ Add the following deploy command to the main class:
 ```java
 package io.zeebe;
 
-import io.zeebe.client.api.response.DeploymentEvent;
+import io.zeebe.client.api.response.DeployWorkflowResponse;
 
 public class Application
 {
@@ -200,7 +200,7 @@ Add the following create command to the main class:
 ```java
 package io.zeebe;
 
-import io.zeebe.client.api.response.WorkflowInstanceEvent;
+import io.zeebe.client.api.response.CreateWorkflowInstanceResponse;
 
 public class Application
 {

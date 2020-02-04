@@ -9,7 +9,7 @@ package io.zeebe.example.workflow;
 
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.ZeebeClientBuilder;
-import io.zeebe.client.api.response.WorkflowInstanceEvent;
+import io.zeebe.client.api.response.CreateWorkflowInstanceResponse;
 
 public final class WorkflowInstanceCreator {
 
@@ -25,7 +25,7 @@ public final class WorkflowInstanceCreator {
 
       System.out.println("Creating workflow instance");
 
-      final WorkflowInstanceEvent workflowInstanceEvent =
+      final CreateWorkflowInstanceResponse createWorkflowInstanceResponse =
           client
               .newCreateInstanceCommand()
               .bpmnProcessId(bpmnProcessId)
@@ -34,7 +34,7 @@ public final class WorkflowInstanceCreator {
               .join();
 
       System.out.println(
-          "Workflow instance created with key: " + workflowInstanceEvent.getWorkflowInstanceKey());
+          "Workflow instance created with key: " + createWorkflowInstanceResponse.getWorkflowInstanceKey());
     }
   }
 }

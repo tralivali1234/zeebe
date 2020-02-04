@@ -15,7 +15,17 @@
  */
 package io.zeebe.client.api.response;
 
-public interface JobEvent {
-  /** Unique key of the created job on the partition */
-  long getKey();
+public interface CreateWorkflowInstanceResponse {
+
+  /** Key of the workflow which this instance was created for */
+  long getWorkflowKey();
+
+  /** BPMN process id of the workflow which this instance was created for */
+  String getBpmnProcessId();
+
+  /** Version of the workflow which this instance was created for */
+  int getVersion();
+
+  /** Unique key of the created workflow instance on the partition */
+  long getWorkflowInstanceKey();
 }

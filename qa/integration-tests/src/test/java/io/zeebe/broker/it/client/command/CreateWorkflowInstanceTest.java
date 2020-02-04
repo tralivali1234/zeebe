@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import io.zeebe.broker.it.util.GrpcClientRule;
 import io.zeebe.broker.test.EmbeddedBrokerRule;
 import io.zeebe.client.api.command.ClientException;
-import io.zeebe.client.api.response.WorkflowInstanceEvent;
+import io.zeebe.client.api.response.CreateWorkflowInstanceResponse;
 import io.zeebe.model.bpmn.Bpmn;
 import io.zeebe.protocol.record.intent.WorkflowInstanceCreationIntent;
 import io.zeebe.test.util.BrokerClassRuleHelper;
@@ -52,7 +52,7 @@ public final class CreateWorkflowInstanceTest {
   @Test
   public void shouldCreateBpmnProcessById() {
     // when
-    final WorkflowInstanceEvent workflowInstance =
+    final CreateWorkflowInstanceResponse workflowInstance =
         CLIENT_RULE
             .getClient()
             .newCreateInstanceCommand()
@@ -70,7 +70,7 @@ public final class CreateWorkflowInstanceTest {
   @Test
   public void shouldCreateBpmnProcessByIdAndVersion() {
     // when
-    final WorkflowInstanceEvent workflowInstance =
+    final CreateWorkflowInstanceResponse workflowInstance =
         CLIENT_RULE
             .getClient()
             .newCreateInstanceCommand()
@@ -88,7 +88,7 @@ public final class CreateWorkflowInstanceTest {
   @Test
   public void shouldCreateBpmnProcessByKey() {
     // when
-    final WorkflowInstanceEvent workflowInstance =
+    final CreateWorkflowInstanceResponse workflowInstance =
         CLIENT_RULE
             .getClient()
             .newCreateInstanceCommand()
@@ -108,7 +108,7 @@ public final class CreateWorkflowInstanceTest {
     final Map<String, Object> variables = Map.of("foo", 123);
 
     // when
-    final WorkflowInstanceEvent event =
+    final CreateWorkflowInstanceResponse event =
         CLIENT_RULE
             .getClient()
             .newCreateInstanceCommand()
@@ -131,7 +131,7 @@ public final class CreateWorkflowInstanceTest {
   @Test
   public void shouldCreateWithoutVariables() {
     // when
-    final WorkflowInstanceEvent event =
+    final CreateWorkflowInstanceResponse event =
         CLIENT_RULE
             .getClient()
             .newCreateInstanceCommand()
@@ -153,7 +153,7 @@ public final class CreateWorkflowInstanceTest {
   @Test
   public void shouldCreateWithNullVariables() {
     // when
-    final WorkflowInstanceEvent event =
+    final CreateWorkflowInstanceResponse event =
         CLIENT_RULE
             .getClient()
             .newCreateInstanceCommand()

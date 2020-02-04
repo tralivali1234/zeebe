@@ -15,18 +15,17 @@
  */
 package io.zeebe.client.impl.response;
 
-import io.zeebe.client.api.response.DeploymentEvent;
+import io.zeebe.client.api.response.DeployWorkflowResponse;
 import io.zeebe.client.api.response.Workflow;
-import io.zeebe.gateway.protocol.GatewayOuterClass.DeployWorkflowResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class DeploymentEventImpl implements DeploymentEvent {
+public final class DeployWorkflowResponseImpl implements DeployWorkflowResponse {
 
   private final long key;
   private final List<Workflow> workflows;
 
-  public DeploymentEventImpl(final DeployWorkflowResponse response) {
+  public DeployWorkflowResponseImpl(final io.zeebe.gateway.protocol.GatewayOuterClass.DeployWorkflowResponse response) {
     key = response.getKey();
     workflows =
         response.getWorkflowsList().stream().map(WorkflowImpl::new).collect(Collectors.toList());

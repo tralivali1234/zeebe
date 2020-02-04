@@ -15,8 +15,8 @@
  */
 package io.zeebe.client.api.command;
 
-import io.zeebe.client.api.response.WorkflowInstanceEvent;
-import io.zeebe.client.api.response.WorkflowInstanceResult;
+import io.zeebe.client.api.response.CreateWorkflowInstanceResponse;
+import io.zeebe.client.api.response.CreateWorkflowInstanceWithResultResponse;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +64,7 @@ public interface CreateWorkflowInstanceCommandStep1 {
     CreateWorkflowInstanceCommandStep3 latestVersion();
   }
 
-  interface CreateWorkflowInstanceCommandStep3 extends FinalCommandStep<WorkflowInstanceEvent> {
+  interface CreateWorkflowInstanceCommandStep3 extends FinalCommandStep<CreateWorkflowInstanceResponse> {
     /**
      * Set the initial variables of the workflow instance.
      *
@@ -112,7 +112,7 @@ public interface CreateWorkflowInstanceCommandStep1 {
   }
 
   interface CreateWorkflowInstanceWithResultCommandStep1
-      extends FinalCommandStep<WorkflowInstanceResult> {
+      extends FinalCommandStep<CreateWorkflowInstanceWithResultResponse> {
 
     /**
      * Set a list of variables names which should be fetched in the response.

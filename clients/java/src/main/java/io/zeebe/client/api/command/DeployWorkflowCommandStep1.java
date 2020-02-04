@@ -15,7 +15,7 @@
  */
 package io.zeebe.client.api.command;
 
-import io.zeebe.client.api.response.DeploymentEvent;
+import io.zeebe.client.api.response.DeployWorkflowResponse;
 import io.zeebe.model.bpmn.BpmnModelInstance;
 import java.io.InputStream;
 import java.nio.charset.Charset;
@@ -97,7 +97,7 @@ public interface DeployWorkflowCommandStep1 {
       BpmnModelInstance workflowDefinition, String resourceName);
 
   interface DeployWorkflowCommandBuilderStep2
-      extends DeployWorkflowCommandStep1, FinalCommandStep<DeploymentEvent> {
+      extends DeployWorkflowCommandStep1, FinalCommandStep<DeployWorkflowResponse> {
     // the place for new optional parameters
   }
 }

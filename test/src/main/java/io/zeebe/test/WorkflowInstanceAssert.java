@@ -7,7 +7,7 @@
  */
 package io.zeebe.test;
 
-import io.zeebe.client.api.response.WorkflowInstanceEvent;
+import io.zeebe.client.api.response.CreateWorkflowInstanceResponse;
 import io.zeebe.client.impl.ZeebeObjectMapper;
 import io.zeebe.protocol.record.Record;
 import io.zeebe.protocol.record.intent.WorkflowInstanceIntent;
@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import org.assertj.core.api.AbstractAssert;
 
 public class WorkflowInstanceAssert
-    extends AbstractAssert<WorkflowInstanceAssert, WorkflowInstanceEvent> {
+    extends AbstractAssert<WorkflowInstanceAssert, CreateWorkflowInstanceResponse> {
   private static final ZeebeObjectMapper OBJECT_MAPPER = new ZeebeObjectMapper();
 
   private static final List<WorkflowInstanceIntent> ELEMENT_PASSED_INTENTS =
@@ -40,13 +40,13 @@ public class WorkflowInstanceAssert
 
   private final long workflowInstanceKey;
 
-  public WorkflowInstanceAssert(final WorkflowInstanceEvent actual) {
+  public WorkflowInstanceAssert(final CreateWorkflowInstanceResponse actual) {
     super(actual, WorkflowInstanceAssert.class);
 
     workflowInstanceKey = actual.getWorkflowInstanceKey();
   }
 
-  public static WorkflowInstanceAssert assertThat(final WorkflowInstanceEvent actual) {
+  public static WorkflowInstanceAssert assertThat(final CreateWorkflowInstanceResponse actual) {
     return new WorkflowInstanceAssert(actual);
   }
 

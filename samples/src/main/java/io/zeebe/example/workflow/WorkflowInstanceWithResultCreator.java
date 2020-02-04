@@ -9,7 +9,7 @@ package io.zeebe.example.workflow;
 
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.ZeebeClientBuilder;
-import io.zeebe.client.api.response.WorkflowInstanceResult;
+import io.zeebe.client.api.response.CreateWorkflowInstanceWithResultResponse;
 import java.time.Duration;
 import java.util.Map;
 
@@ -27,7 +27,7 @@ public class WorkflowInstanceWithResultCreator {
       openJobWorker(client); // open job workers so that task are executed and workflow is completed
       System.out.println("Creating workflow instance");
 
-      final WorkflowInstanceResult workflowInstanceResult =
+      final CreateWorkflowInstanceWithResultResponse createWorkflowInstanceWithResultResponse =
           client
               .newCreateInstanceCommand()
               .bpmnProcessId(bpmnProcessId)
@@ -38,9 +38,9 @@ public class WorkflowInstanceWithResultCreator {
 
       System.out.println(
           "Workflow instance created with key: "
-              + workflowInstanceResult.getWorkflowInstanceKey()
+              + createWorkflowInstanceWithResultResponse.getWorkflowInstanceKey()
               + " and completed with results: "
-              + workflowInstanceResult.getVariables());
+              + createWorkflowInstanceWithResultResponse.getVariables());
     }
   }
 

@@ -26,8 +26,8 @@ import io.zeebe.broker.it.util.RecordingJobHandler;
 import io.zeebe.broker.test.EmbeddedBrokerRule;
 import io.zeebe.client.api.response.ActivateJobsResponse;
 import io.zeebe.client.api.response.ActivatedJob;
-import io.zeebe.client.api.response.DeploymentEvent;
-import io.zeebe.client.api.response.WorkflowInstanceEvent;
+import io.zeebe.client.api.response.CreateWorkflowInstanceResponse;
+import io.zeebe.client.api.response.DeployWorkflowResponse;
 import io.zeebe.client.api.worker.JobWorker;
 import io.zeebe.engine.processor.workflow.job.JobTimeoutTrigger;
 import io.zeebe.model.bpmn.Bpmn;
@@ -285,7 +285,7 @@ public final class BrokerReprocessingTest {
     // when
     reprocessingTrigger.accept(this);
 
-    final DeploymentEvent deploymentResult =
+    final DeployWorkflowResponse deploymentResult =
         clientRule
             .getClient()
             .newDeployCommand()
@@ -296,7 +296,7 @@ public final class BrokerReprocessingTest {
     // then
     assertThat(deploymentResult.getWorkflows().get(0).getVersion()).isEqualTo(2);
 
-    final WorkflowInstanceEvent workflowInstanceV1 =
+    final CreateWorkflowInstanceResponse workflowInstanceV1 =
         clientRule
             .getClient()
             .newCreateInstanceCommand()
@@ -305,7 +305,7 @@ public final class BrokerReprocessingTest {
             .send()
             .join();
 
-    final WorkflowInstanceEvent workflowInstanceV2 =
+    final CreateWorkflowInstanceResponse workflowInstanceV2 =
         clientRule
             .getClient()
             .newCreateInstanceCommand()
@@ -394,7 +394,7 @@ public final class BrokerReprocessingTest {
     // given
     deploy(WORKFLOW_INCIDENT, "incident.bpmn");
 
-    final WorkflowInstanceEvent instanceEvent =
+    final CreateWorkflowInstanceResponse instanceEvent =
         clientRule
             .getClient()
             .newCreateInstanceCommand()
@@ -431,7 +431,7 @@ public final class BrokerReprocessingTest {
     // given
     deploy(WORKFLOW_INCIDENT, "incident.bpmn");
 
-    final WorkflowInstanceEvent instanceEvent =
+    final CreateWorkflowInstanceResponse instanceEvent =
         clientRule
             .getClient()
             .newCreateInstanceCommand()
@@ -645,7 +645,7 @@ public final class BrokerReprocessingTest {
         .isTrue();
   }
 
-  private WorkflowInstanceEvent startWorkflowInstance(final String bpmnProcessId) {
+  private CreateWorkflowInstanceResponse startWorkflowInstance(final String bpmnProcessId) {
     return clientRule
         .getClient()
         .newCreateInstanceCommand()
@@ -655,7 +655,7 @@ public final class BrokerReprocessingTest {
         .join();
   }
 
-  protected WorkflowInstanceEvent startWorkflowInstance(
+  protected CreateWorkflowInstanceResponse startWorkflowInstance(
       final String bpmnProcessId, final Map<String, Object> variables) {
     return clientRule
         .getClient()
@@ -706,7 +706,7 @@ public final class BrokerReprocessingTest {
   }
 
   private void deploy(final BpmnModelInstance workflowTwoTasks, final String s) {
-    final DeploymentEvent deploymentEvent =
+    final DeployWorkflowResponse deployWorkflowResponse =
         clientRule
             .getClient()
             .newDeployCommand()
@@ -714,7 +714,7 @@ public final class BrokerReprocessingTest {
             .send()
             .join();
 
-    clientRule.waitUntilDeploymentIsDone(deploymentEvent.getKey());
+    clientRule.waitUntilDeploymentIsDone(deployWorkflowResponse.getKey());
   }
 
   private void awaitGateway() {
