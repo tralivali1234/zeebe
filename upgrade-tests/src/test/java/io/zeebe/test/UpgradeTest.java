@@ -11,6 +11,7 @@ import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.api.response.ActivateJobsResponse;
 import io.zeebe.containers.ZeebePort;
 import io.zeebe.containers.broker.ZeebeBrokerContainer;
+import io.zeebe.containers.gateway.ZeebeGatewayContainer;
 import io.zeebe.model.bpmn.Bpmn;
 import io.zeebe.model.bpmn.BpmnModelInstance;
 import io.zeebe.test.util.TestUtil;
@@ -30,15 +31,23 @@ import org.testcontainers.containers.Network;
 public class UpgradeTest {
 
   public static final Logger LOG = LoggerFactory.getLogger(UpgradeTest.class);
-
+  private static final String CURRENT_VERSION = "current-test";
   private static final String PROCESS_ID = "process";
   private static final String TASK = "task";
-  private static String lastVersion = "0.22.1";
 
+  private static final BpmnModelInstance WORKFLOW =
+      Bpmn.createExecutableProcess(PROCESS_ID)
+          .startEvent()
+          .serviceTask(TASK, t -> t.zeebeTaskType(TASK))
+          .endEvent()
+          .done();
+
+  private static String lastVersion = "0.22.1";
   @Rule public Timeout timeout = new Timeout(60, TimeUnit.SECONDS);
   @Rule public TemporaryFolder temp = new TemporaryFolder();
 
   private ZeebeBrokerContainer container;
+  private ZeebeGatewayContainer gateway;
   private ZeebeClient client;
   private Network network;
 
@@ -54,6 +63,9 @@ public class UpgradeTest {
         protected void failed(Throwable e, Description description) {
           if (container != null) {
             LOG.error(container.getLogs());
+          }
+          if (gateway != null) {
+            LOG.error(gateway.getLogs());
           }
 
           close();
@@ -73,29 +85,74 @@ public class UpgradeTest {
   }
 
   @Test
-  public void shouldCompleteJob() {
+  public void shouldCompleteJobAfterUpgrade() {
+    // given
     startZeebe(lastVersion);
 
-    final BpmnModelInstance workflow =
-        Bpmn.createExecutableProcess(PROCESS_ID)
-            .startEvent()
-            .serviceTask(TASK, t -> t.zeebeTaskType("test"))
-            .endEvent()
-            .done();
     // when
-    client.newDeployCommand().addWorkflowModel(workflow, PROCESS_ID + ".bpmn").send().join();
+    client.newDeployCommand().addWorkflowModel(WORKFLOW, PROCESS_ID + ".bpmn").send().join();
     client.newCreateInstanceCommand().bpmnProcessId(PROCESS_ID).latestVersion().send().join();
 
     final ActivateJobsResponse jobsResponse =
-        client.newActivateJobsCommand().jobType("test").maxJobsToActivate(1).send().join();
+        client.newActivateJobsCommand().jobType(TASK).maxJobsToActivate(1).send().join();
 
     TestUtil.waitUntil(() -> findElementInState(TASK, "ACTIVATED"));
     close();
 
-    startZeebe("current-test");
+    startZeebe(CURRENT_VERSION);
     client.newCompleteCommand(jobsResponse.getJobs().get(0).getKey()).send().join();
 
     TestUtil.waitUntil(() -> findElementInState(PROCESS_ID, "ELEMENT_COMPLETED"));
+  }
+
+  @Test
+  public void shouldSupportOlderVersionedGateway() {
+    // given
+    startZeebe(false, CURRENT_VERSION, lastVersion);
+
+    // when
+    client.newDeployCommand().addWorkflowModel(WORKFLOW, PROCESS_ID + ".bpmn").send().join();
+    client.newCreateInstanceCommand().bpmnProcessId(PROCESS_ID).latestVersion().send().join();
+
+    final ActivateJobsResponse jobsResponse =
+        client.newActivateJobsCommand().jobType(TASK).maxJobsToActivate(1).send().join();
+
+    client.newCompleteCommand(jobsResponse.getJobs().get(0).getKey()).send().join();
+
+    // then
+    TestUtil.waitUntil(() -> findElementInState(PROCESS_ID, "ELEMENT_COMPLETED"));
+  }
+
+  private void startZeebe(final String version) {
+    startZeebe(true, version, null);
+  }
+
+  private void startZeebe(
+      final boolean embeddedGateway, final String brokerVersion, final String gatewayVersion) {
+    network = Network.newNetwork();
+
+    container =
+        new ZeebeBrokerContainer(brokerVersion)
+            .withFileSystemBind(temp.getRoot().getPath(), "/usr/local/zeebe/data")
+            .withNetwork(network)
+            .withEmbeddedGateway(embeddedGateway)
+            .withDebug(true)
+            .withLogLevel(Level.DEBUG);
+    container.start();
+
+    String contactPoint = container.getExternalAddress(ZeebePort.GATEWAY);
+
+    if (!embeddedGateway) {
+      gateway =
+          new ZeebeGatewayContainer(gatewayVersion)
+              .withContactPoint(container.getContactPoint())
+              .withNetwork(network)
+              .withLogLevel(Level.DEBUG);
+      gateway.start();
+      contactPoint = gateway.getExternalAddress(ZeebePort.GATEWAY);
+    }
+
+    client = ZeebeClient.newClientBuilder().brokerContactPoint(contactPoint).usePlaintext().build();
   }
 
   private boolean findElementInState(final String element, final String intent) {
@@ -111,28 +168,15 @@ public class UpgradeTest {
     return false;
   }
 
-  private void startZeebe(final String version) {
-    network = Network.newNetwork();
-
-    container =
-        new ZeebeBrokerContainer(version)
-            .withFileSystemBind(temp.getRoot().getPath(), "/usr/local/zeebe/data")
-            .withNetwork(network)
-            .withDebug(true)
-            .withLogLevel(Level.DEBUG);
-    container.start();
-
-    client =
-        ZeebeClient.newClientBuilder()
-            .brokerContactPoint(container.getExternalAddress(ZeebePort.GATEWAY))
-            .usePlaintext()
-            .build();
-  }
-
   private void close() {
     if (client != null) {
       client.close();
       client = null;
+    }
+
+    if (gateway != null) {
+      gateway.close();
+      gateway = null;
     }
 
     if (container != null) {
