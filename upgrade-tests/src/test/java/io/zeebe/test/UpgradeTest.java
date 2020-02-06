@@ -62,10 +62,18 @@ public class UpgradeTest {
         @Override
         protected void failed(Throwable e, Description description) {
           if (container != null) {
-            LOG.error(container.getLogs());
+            LOG.error(
+                "===============================================\n"
+                    + "Broker logs\n"
+                    + "==============================================="
+                    + container.getLogs());
           }
           if (gateway != null) {
-            LOG.error(gateway.getLogs());
+            LOG.error(
+                "===============================================\n"
+                    + "Gateway logs\n"
+                    + "==============================================="
+                    + gateway.getLogs());
           }
 
           close();
