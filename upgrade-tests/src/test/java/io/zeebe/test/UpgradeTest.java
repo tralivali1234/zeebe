@@ -9,9 +9,9 @@ package io.zeebe.test;
 
 import io.zeebe.client.ZeebeClient;
 import io.zeebe.client.api.response.ActivateJobsResponse;
+import io.zeebe.containers.ZeebeBrokerContainer;
 import io.zeebe.containers.ZeebePort;
-import io.zeebe.containers.broker.ZeebeBrokerContainer;
-import io.zeebe.containers.gateway.ZeebeGatewayContainer;
+import io.zeebe.containers.ZeebeStandaloneGatewayContainer;
 import io.zeebe.model.bpmn.Bpmn;
 import io.zeebe.model.bpmn.BpmnModelInstance;
 import io.zeebe.test.util.TestUtil;
@@ -30,55 +30,26 @@ import org.testcontainers.containers.Network;
 
 public class UpgradeTest {
 
-  public static final Logger LOG = LoggerFactory.getLogger(UpgradeTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(UpgradeTest.class);
   private static final String CURRENT_VERSION = "current-test";
   private static final String PROCESS_ID = "process";
   private static final String TASK = "task";
-
   private static final BpmnModelInstance WORKFLOW =
       Bpmn.createExecutableProcess(PROCESS_ID)
           .startEvent()
           .serviceTask(TASK, t -> t.zeebeTaskType(TASK))
           .endEvent()
           .done();
-
   private static String lastVersion = "0.22.1";
+
   @Rule public Timeout timeout = new Timeout(60, TimeUnit.SECONDS);
   @Rule public TemporaryFolder temp = new TemporaryFolder();
+  @Rule public TestWatcher watchman = new ContainerTestWatcher();
 
   private ZeebeBrokerContainer container;
-  private ZeebeGatewayContainer gateway;
+  private ZeebeStandaloneGatewayContainer gateway;
   private ZeebeClient client;
   private Network network;
-
-  @Rule(order = Integer.MIN_VALUE)
-  public TestWatcher watchman =
-      new TestWatcher() {
-        @Override
-        protected void succeeded(Description description) {
-          close();
-        }
-
-        @Override
-        protected void failed(Throwable e, Description description) {
-          if (container != null) {
-            LOG.error(
-                "===============================================\n"
-                    + "Broker logs\n"
-                    + "==============================================="
-                    + container.getLogs());
-          }
-          if (gateway != null) {
-            LOG.error(
-                "===============================================\n"
-                    + "Gateway logs\n"
-                    + "==============================================="
-                    + gateway.getLogs());
-          }
-
-          close();
-        }
-      };
 
   @BeforeClass
   public static void beforeClass() {
@@ -110,6 +81,7 @@ public class UpgradeTest {
     startZeebe(CURRENT_VERSION);
     client.newCompleteCommand(jobsResponse.getJobs().get(0).getKey()).send().join();
 
+    // then
     TestUtil.waitUntil(() -> findElementInState(PROCESS_ID, "ELEMENT_COMPLETED"));
   }
 
@@ -152,7 +124,7 @@ public class UpgradeTest {
 
     if (!embeddedGateway) {
       gateway =
-          new ZeebeGatewayContainer(gatewayVersion)
+          new ZeebeStandaloneGatewayContainer(gatewayVersion)
               .withContactPoint(container.getContactPoint())
               .withNetwork(network)
               .withLogLevel(Level.DEBUG);
@@ -195,6 +167,33 @@ public class UpgradeTest {
     if (network != null) {
       network.close();
       network = null;
+    }
+  }
+
+  private class ContainerTestWatcher extends TestWatcher {
+
+    @Override
+    protected void succeeded(Description description) {
+      close();
+    }
+
+    @Override
+    protected void failed(Throwable e, Description description) {
+      if (container != null && LOG.isErrorEnabled()) {
+        LOG.error(
+            String.format(
+                "===============================================%nBroker logs%n===============================================%n%s",
+                container.getLogs()));
+      }
+
+      if (gateway != null && LOG.isErrorEnabled()) {
+        LOG.error(
+            String.format(
+                "===============================================%nGateway logs%n===============================================%n%s",
+                gateway.getLogs()));
+      }
+
+      close();
     }
   }
 }
