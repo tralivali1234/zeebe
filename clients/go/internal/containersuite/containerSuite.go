@@ -26,6 +26,8 @@ import (
 	"github.com/zeebe-io/zeebe/clients/go/pkg/zbc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"io/ioutil"
+	"os"
 	"time"
 )
 
@@ -57,6 +59,35 @@ func (s zeebeWaitStrategy) WaitUntilReady(ctx context.Context, target wait.Strat
 		return err
 	}
 
+	defer func() {
+		_ = zbClient.Close()
+	}()
+
+	finishedChan := make(chan error, 1)
+	go s.waitForTopology(finishedChan, zbClient)
+
+	select {
+	case err = <-finishedChan:
+		return err
+	case <-time.After(utils.DefaultContainerWaitTimeout):
+		reader, err := target.Logs(ctx)
+		if err != nil {
+			return fmt.Errorf("Timed out awaiting container, and failed to obtain container logs: %w", err)
+		}
+		if bytes, err := ioutil.ReadAll(reader); err != nil {
+			_, _ = fmt.Fprint(os.Stderr, "=====================================\n")
+			_, _ = fmt.Fprint(os.Stderr, "Container logs\n")
+			_, _ = fmt.Fprint(os.Stderr, "=====================================\n")
+			_, _ = fmt.Fprintf(os.Stderr, "%s", bytes)
+
+			return fmt.Errorf("Timed out awaiting container")
+		} else {
+			return fmt.Errorf("Timed out awaiting container, but failed to read container logs: %w", err)
+		}
+	}
+}
+
+func (s zeebeWaitStrategy) waitForTopology(finishedChan chan error, zbClient zbc.Client) {
 	ctx, cancel := context.WithTimeout(context.Background(), utils.DefaultTestTimeout)
 	defer cancel()
 
@@ -69,11 +100,7 @@ func (s zeebeWaitStrategy) WaitUntilReady(ctx context.Context, target wait.Strat
 		res, err = zbClient.NewTopologyCommand().Send(ctx)
 	}
 
-	if err != nil {
-		return err
-	}
-
-	return zbClient.Close()
+	finishedChan <- err
 }
 
 func isStable(res *pb.TopologyResponse) bool {
