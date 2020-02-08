@@ -81,9 +81,9 @@ func (s zeebeWaitStrategy) WaitUntilReady(ctx context.Context, target wait.Strat
 			_, _ = fmt.Fprintf(os.Stderr, "%s", bytes)
 
 			return fmt.Errorf("Timed out awaiting container")
-		} else {
-			return fmt.Errorf("Timed out awaiting container, but failed to read container logs: %w", err)
 		}
+
+		return fmt.Errorf("Timed out awaiting container, but failed to read container logs: %w", err)
 	}
 }
 
